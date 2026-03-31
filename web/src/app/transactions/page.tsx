@@ -2,6 +2,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { formatMoneyCents } from "@/lib/money";
 
+export const dynamic = "force-dynamic";
+
 export default function TransactionsPage() {
   // Server Component: runs on the server, can query DB directly.
   // (Route Handlers are used for writes from client forms.)
@@ -20,13 +22,23 @@ export default function TransactionsPage() {
 }
 
 async function TransactionsTable() {
-  const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
-  const currency = settings?.currency ?? "EUR";
+  let currency = "EUR";
+  let txs: Awaited<ReturnType<typeof prisma.transaction.findMany>> = [];
 
-  const txs = await prisma.transaction.findMany({
-    orderBy: { date: "desc" },
-    take: 100,
-  });
+  try {
+    const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
+    currency = settings?.currency ?? "EUR";
+    txs = await prisma.transaction.findMany({
+      orderBy: { date: "desc" },
+      take: 100,
+    });
+  } catch {
+    return (
+      <p style={{ marginTop: 16, opacity: 0.75 }}>
+        Database is not initialized in this environment yet.
+      </p>
+    );
+  }
 
   if (txs.length === 0) {
     return <p style={{ marginTop: 16, opacity: 0.75 }}>No entries yet.</p>;

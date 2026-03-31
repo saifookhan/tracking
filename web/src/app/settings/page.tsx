@@ -2,8 +2,15 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { SettingsForm } from "@/components/SettingsForm";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
-  const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
+  let settings: Awaited<ReturnType<typeof prisma.appSettings.findUnique>> | null = null;
+  try {
+    settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
+  } catch {
+    settings = null;
+  }
 
   return (
     <main style={{ maxWidth: 720, margin: "0 auto", padding: 24 }}>

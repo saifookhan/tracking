@@ -4,22 +4,22 @@ import { prisma } from "@/lib/db";
 import { formatMoneyCents } from "@/lib/money";
 import { balanceAfterMonthsCents, monthlyPaymentCents } from "@/lib/loan";
 
+export const dynamic = "force-dynamic";
+
 export default function Home() {
   return <HomeInner />;
 }
 
 async function HomeInner() {
-  const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
+  const { settings, txs, dbReady } = await loadDashboardData();
   const currency = settings?.currency ?? "EUR";
 
-  const txs = await prisma.transaction.findMany({
-    where: {
-      date: {
-        gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-        lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
-      },
-    },
-  });
+  const loanConfigured =
+    dbReady &&
+    settings?.loanPrincipalCts != null &&
+    settings.loanAprBps != null &&
+    settings.loanTermMonths != null &&
+    settings.loanStartDate != null;
 
   const incomeCts = txs
     .filter((t) => t.type === "RENT")
@@ -33,12 +33,6 @@ async function HomeInner() {
     month: "long",
     year: "numeric",
   }).format(new Date());
-
-  const loanConfigured =
-    settings?.loanPrincipalCts != null &&
-    settings.loanAprBps != null &&
-    settings.loanTermMonths != null &&
-    settings.loanStartDate != null;
 
   const monthsSinceStart = loanConfigured
     ? diffMonths(settings.loanStartDate!, new Date())
@@ -90,7 +84,11 @@ async function HomeInner() {
 
         <section className={styles.loanBox}>
           <div className={styles.loanTitle}>Loan</div>
-          {loanConfigured ? (
+          {!dbReady ? (
+            <div className={styles.loanHint}>
+              Database is not initialized in this environment yet.
+            </div>
+          ) : loanConfigured ? (
             <div className={styles.loanGrid}>
               <div className={styles.loanItem}>
                 <div className={styles.loanLabel}>Monthly payment (est.)</div>
@@ -152,4 +150,26 @@ async function HomeInner() {
 
 function diffMonths(from: Date, to: Date): number {
   return to.getFullYear() * 12 + to.getMonth() - (from.getFullYear() * 12 + from.getMonth());
+}
+
+async function loadDashboardData(): Promise<{
+  settings: Awaited<ReturnType<typeof prisma.appSettings.findUnique>> | null;
+  txs: Awaited<ReturnType<typeof prisma.transaction.findMany>>;
+  dbReady: boolean;
+}> {
+  try {
+    const settings = await prisma.appSettings.findUnique({ where: { id: 1 } });
+    const txs = await prisma.transaction.findMany({
+      where: {
+        date: {
+          gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+          lt: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+        },
+      },
+    });
+    return { settings, txs, dbReady: true };
+  } catch {
+    // On some deployments (e.g. fresh/ephemeral DB), tables may not exist yet.
+    return { settings: null, txs: [], dbReady: false };
+  }
 }
