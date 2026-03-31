@@ -1,0 +1,177 @@
+.page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-geist-sans);
+  padding: 48px 20px;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  max-width: 980px;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.subtitle {
+  color: color-mix(in srgb, var(--foreground), transparent 35%);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kpi {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 85%);
+  background: color-mix(in srgb, var(--background), var(--foreground) 2%);
+}
+
+.kpiLabel {
+  color: color-mix(in srgb, var(--foreground), transparent 45%);
+  font-size: 13px;
+}
+
+.kpiValue {
+  margin-top: 6px;
+  font-size: 20px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.loanBox {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 85%);
+  background: color-mix(in srgb, var(--background), var(--foreground) 2%);
+}
+
+.loanTitle {
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.loanHint {
+  margin-top: 8px;
+  color: color-mix(in srgb, var(--foreground), transparent 40%);
+  font-size: 14px;
+}
+
+.loanGrid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.loanItem {
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 88%);
+  background: color-mix(in srgb, var(--background), var(--foreground) 1%);
+}
+
+.loanLabel {
+  color: color-mix(in srgb, var(--foreground), transparent 45%);
+  font-size: 13px;
+}
+
+.loanValue {
+  margin-top: 6px;
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.card,
+.cardPrimary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 16px;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--foreground), transparent 82%);
+  background: color-mix(in srgb, var(--background), var(--foreground) 4%);
+  transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+  min-height: 110px;
+}
+
+.cardPrimary {
+  border-color: color-mix(in srgb, var(--foreground), transparent 70%);
+  background: color-mix(in srgb, #2563eb, transparent 88%);
+}
+
+.cardTitle {
+  font-weight: 650;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+.cardDesc {
+  color: color-mix(in srgb, var(--foreground), transparent 40%);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Enable hover only on non-touch devices */
+@media (hover: hover) and (pointer: fine) {
+  .card:hover,
+  .cardPrimary:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--foreground), transparent 70%);
+  }
+}
+
+@media (max-width: 600px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .loanGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 8px;
+}
+
+.hint {
+  color: color-mix(in srgb, var(--foreground), transparent 50%);
+  font-size: 13px;
+}
