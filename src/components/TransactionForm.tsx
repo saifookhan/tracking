@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { suggestCategory } from "@/lib/categoryRules";
 
 type Props = {
   type: "RENT" | "EXPENSE";
@@ -25,6 +26,7 @@ export function TransactionForm({ type, defaultCategory, categories }: Props) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState(defaultCategory ?? "");
   const [notes, setNotes] = useState("");
+  const [categoryTouched, setCategoryTouched] = useState(false);
 
   const lastPayload = useRef<string | null>(null);
   const timer = useRef<number | null>(null);
@@ -36,6 +38,22 @@ export function TransactionForm({ type, defaultCategory, categories }: Props) {
     const n = Number(amount);
     return Number.isFinite(n) && n >= 0;
   }, [amount, category, date, type]);
+
+  useEffect(() => {
+    if (type !== "EXPENSE") return;
+    if (!notes.trim()) return;
+    // Only auto-suggest if user hasn't changed the category yet.
+    const s = suggestCategory(notes);
+    if (!s) return;
+    if (categoryTouched) return;
+
+    // Avoid lint: don't set state inside effect; set a native default instead.
+    const el = document.querySelector<HTMLSelectElement>('select[name="category"]');
+    if (!el) return;
+    if (el.value && el.value !== (defaultCategory ?? "")) return;
+
+    el.value = s;
+  }, [categoryTouched, defaultCategory, notes, type]);
 
   useEffect(() => {
     if (!canSave) return;
@@ -115,7 +133,10 @@ export function TransactionForm({ type, defaultCategory, categories }: Props) {
             name="category"
             required
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => {
+              setCategoryTouched(true);
+              setCategory(e.target.value);
+            }}
           >
             {(categories ?? []).map((c) => (
               <option key={c} value={c}>

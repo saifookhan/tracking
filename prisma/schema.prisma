@@ -17,6 +17,10 @@ enum TransactionType {
   EXPENSE
 }
 
+enum RecurringFrequency {
+  MONTHLY
+}
+
 model AppSettings {
   id               Int      @id @default(1)
   currency         String   @default("EUR")
@@ -37,4 +41,20 @@ model Transaction {
   category       String?
   notes          String?
   createdAt      DateTime        @default(now())
+}
+
+model RecurringRule {
+  id          String             @id @default(cuid())
+  enabled     Boolean            @default(true)
+  name        String
+  type        TransactionType
+  amountCts   Int
+  category    String?
+  notes       String?
+  frequency   RecurringFrequency @default(MONTHLY)
+  dayOfMonth  Int
+  startDate   DateTime
+  lastRunAt   DateTime?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
 }
